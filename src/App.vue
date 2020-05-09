@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Grid message="Ta mere" />
+    <Grid />
   </div>
 </template>
 
