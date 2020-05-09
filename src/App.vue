@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <Grid />
+    <Game />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import Grid from "./components/Grid.vue";
+import Game from "./components/Game.vue";
 
 @Component({
   components: {
-    Grid
+    Game
   }
 })
 export default class App extends Vue {}
@@ -24,5 +24,6 @@ export default class App extends Vue {}
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  
 }
 </style>
