@@ -1,5 +1,4 @@
 <template>
-  <div class="grid">
     <table>
       <tr v-for="(row, rowIndex) in pattern" :key="`row-${rowIndex}`">
         <td
@@ -10,7 +9,6 @@
         />
       </tr>
     </table>
-  </div>
 </template>
 
 <style scoped>
@@ -22,19 +20,18 @@ td {
 }
 
 table {
-  margin: auto;
+  table-layout: fixed;
+  width: 80vmin !important;
+  height: 80vmin !important;
 }
-.grid{
-  transition-property: visibility,height;
-  transition-duration: 5s;
-}
+
 .alive {
   background-color: #ff6467 !important;
 }
 .cell {
   background-color: #35b5aa;
-  height: 0.5vmin;
-  width: 0.5vmin;
+  max-height: 0.8vmin;
+  max-width: 0.8vmin;
 }
 </style>
 

@@ -1,24 +1,33 @@
 <template>
   <div>
-    <button @click="getRandomPattern">Get random Pattern</button>
-    <button @click="generateBlanckGrid">Create my grid</button>
-    <div v-if="pattern[0].length === 0">No pattern loaded</div>
-    <transition name="open">
-    <div v-if="pattern[0].length > 0">
-      <button @click="pattern = nextState">Step</button>
-      <button @click="update">Update</button>
-      <Grid :pattern="pattern" @change-cell="changeCell" />
+    <h2>The game of Life</h2>
+    <div v-if="pattern[0].length === 0">
+      <button @click="getRandomPattern">Get random Pattern</button>
+      <button @click="generateBlanckGrid">Create my grid</button>
+      <div class="game-zone" >No pattern loaded</div>
     </div>
-    </transition>
+
+    <div v-else  class="game-zone">
+      <Grid :pattern="pattern" @change-cell="changeCell" />
+      <button @click="pattern = nextState">Step</button>
+      <button @click="run">Run</button>
+    </div>
+    <div>
+
+    </div>
   </div>
 </template>
 
 <style scoped>
-.open-enter-active {
-  transition: opacity .5s;
-}
-.open-enter {
-  opacity: 0;
+.game-zone {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 80vmin;
+  max-height: 80vmin;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 </style>
 
@@ -33,31 +42,13 @@ const availablePatternsUrl =
 })
 export default class Game extends Vue {
   changeCell({ row, col }: { row: number; col: number }) {
-    const newState= this.pattern[row][col] === 1 ? 0 : 1;
-    this.$set(this.pattern[row],col,newState)
+    const newState = this.pattern[row][col] === 1 ? 0 : 1;
+    this.$set(this.pattern[row], col, newState);
   }
   pattern: number[][] = [[]];
-
   availablePatterns: string[] = [];
 
-  async getRandomPattern() {
-    if (this.availablePatterns.length === 0) {
-      const response = await fetch(availablePatternsUrl);
-      this.availablePatterns = (await response.json()).patternList;
-    }
-    const randomPattern = this.availablePatterns[
-      Math.floor(Math.random() * this.availablePatterns.length)
-    ];
-    const response = await fetch(availablePatternsUrl + randomPattern);
-    this.pattern = (await response.json()).pattern;
-  }
-  generateBlanckGrid(){
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.pattern = Array.from(Array(100), (_) =>
-      Array(100).fill(0)
-    );
-  }
-
+  // COMPUTED VALUES
   get patternSize() {
     return this.pattern.length;
   }
@@ -106,7 +97,25 @@ export default class Game extends Vue {
     });
   }
 
-  update() {
+  // METHODS
+
+  async getRandomPattern() {
+    if (this.availablePatterns.length === 0) {
+      const response = await fetch(availablePatternsUrl);
+      this.availablePatterns = (await response.json()).patternList;
+    }
+    const randomPattern = this.availablePatterns[
+      Math.floor(Math.random() * this.availablePatterns.length)
+    ];
+    const response = await fetch(availablePatternsUrl + randomPattern);
+    this.pattern = (await response.json()).pattern;
+  }
+  generateBlanckGrid() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.pattern = Array.from(Array(100), (_) => Array(100).fill(0));
+  }
+
+  run() {
     setInterval(() => {
       this.pattern = this.nextState;
     }, 300);
