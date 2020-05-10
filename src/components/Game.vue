@@ -2,15 +2,17 @@
   <div>
     <h2>The game of Life</h2>
     <div v-if="pattern[0].length === 0">
-      <button @click="getRandomPattern">Get random Pattern</button>
-      <button @click="generateBlanckGrid">Create my grid</button>
-      <div class="game-zone">No pattern loaded</div>
+      <button class="btn" @click="getRandomPattern">Get random Pattern</button>
+      <button class="btn" @click="generateBlanckGrid">Create my grid</button>
+      <div class="game-zone">{{ interfaceMessage }}</div>
     </div>
 
     <div v-else class="game-zone">
       <Grid :pattern="pattern" @change-cell="changeCell" />
-      <button :disabled="isRunning" @click="pattern = nextState">Step</button>
-      <button :disabled="isRunning" @click="run">
+      <button class="btn" :disabled="isRunning" @click="pattern = nextState">
+        Step
+      </button>
+      <button class="btn" :disabled="isRunning" @click="run">
         {{ isRunning ? "Running..." : "Run" }}
       </button>
     </div>
@@ -30,8 +32,8 @@
   transform: translate(-50%, -50%);
 }
 
-button {
-  background-color: #35b5aa; /* Green */
+.btn {
+  background-color: #35b5aa; /* light blue */
   border: none;
   color: white;
   padding: 9px 16px;
@@ -43,10 +45,10 @@ button {
   transition-duration: 0.4s;
 }
 
-button:hover {
-  background-color: #ff6467;
+.btn:hover {
+  background-color: #ff6467; /* light red */
 }
-button:disabled {
+.btn:disabled {
   background-color: grey;
 }
 </style>
@@ -57,28 +59,39 @@ import Grid from "./Grid.vue";
 const availablePatternsUrl =
   "https://thunder-dev.flashbrand.me/recruitment/life/";
 
+/**
+ * Controller with the logical part of the game
+ */
 @Component({
   components: { Grid },
 })
 export default class Game extends Vue {
+  /**
+   * Grid of the state of the game
+   */
   pattern: number[][] = [[]];
-  availablePatterns: string[] = [];
   isRunning = false;
+  interfaceMessage = "No pattern loaded";
 
-  // COMPUTED VALUES
+  //#region COMPUTED_VALUES
+
+  /**
+   * Computed value with the size of the grid
+   */
   get patternSize() {
     return this.pattern.length;
   }
 
-  // Computed value : matrix with the number of neighbour of each cell
+  /**
+   * Computed array with the number of alive cell
+   * in the neigbourhoud of each cell
+   */
   get neighboursGrid() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const newNeighboursGrid = Array.from(Array(this.patternSize), (_) =>
+    const newNeighboursGrid = Array.from(Array(this.patternSize), () =>
       Array(this.patternSize).fill(0)
     );
     this.pattern.forEach((row, rowIndex) => {
       return row.forEach((cell, colIndex) => {
-        // if the cell is alive we update its neighbours
         if (cell === 1) {
           const rowMin = Math.max(rowIndex - 1, 0);
           const rowMax = Math.min(rowIndex + 1, this.patternSize - 1);
@@ -98,14 +111,9 @@ export default class Game extends Vue {
     return newNeighboursGrid;
   }
 
-  // Tell if a cell will be alive or dead
-  cellNextState(row: number, col: number) {
-    const neighbours = this.neighboursGrid[row][col];
-    if (this.pattern[row][col] === 1 && neighbours === 2) return 1;
-    return neighbours === 3 ? 1 : 0;
-  }
-
-  // Return the matrix with the future state of each cell
+  /**
+   * Return the matrix with the future state of each cell
+   */
   get nextState() {
     return this.pattern.map((row, rowIndex) => {
       return row.map((col, colIndex) => {
@@ -113,35 +121,75 @@ export default class Game extends Vue {
       });
     });
   }
+  //#endregion COMPUTED_VALUES
 
-  // METHODS
+  //#region Methods
 
+  /**
+   * Fetch the list of available pattern and load a random one into this.pattern
+   */
   async getRandomPattern() {
-    if (this.availablePatterns.length === 0) {
-      const response = await fetch(availablePatternsUrl);
-      this.availablePatterns = (await response.json()).patternList;
+    try {
+      let response = await fetch(availablePatternsUrl);
+      let availablePatterns: string[] = [];
+      if (response.status === 200) {
+        availablePatterns = (await response.json()).patternList;
+      } else {
+        this.interfaceMessage = "Oops, we could not load the pattern !";
+        return;
+      }
+      const randomPattern =
+        availablePatterns[Math.floor(Math.random() * availablePatterns.length)];
+      response = await fetch(availablePatternsUrl + encodeURI(randomPattern));
+      if (response.status === 200) {
+        this.pattern = (await response.json()).pattern;
+      } else {
+        this.interfaceMessage = "Oops, we could not load the pattern !";
+        return;
+      }
+    } catch (error) {
+      this.interfaceMessage = "Oops, we could not load the pattern !";
     }
-    const randomPattern = this.availablePatterns[
-      Math.floor(Math.random() * this.availablePatterns.length)
-    ];
-    const response = await fetch(availablePatternsUrl + randomPattern);
-    this.pattern = (await response.json()).pattern;
-  }
-  generateBlanckGrid() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.pattern = Array.from(Array(100), (_) => Array(100).fill(0));
   }
 
+  /**
+   * this.pattern became a 100x100 grid of dead cells
+   */
+  generateBlanckGrid() {
+    this.pattern = Array.from(Array(100), () => Array(100).fill(0));
+  }
+
+  /**
+   * Toggle the state of a cell with its coordinates
+   * @param {Object} coordinates - the coordinates of the cell
+   * @param {number} coordinates.row - index of the row of the cell
+   * @param {number} coordinates.col - index of the column of the cell
+   */
   changeCell({ row, col }: { row: number; col: number }) {
     const newState = this.pattern[row][col] === 1 ? 0 : 1;
     this.$set(this.pattern[row], col, newState);
   }
 
+  /**
+   * Tell if a cell will be alive or dead for the next state
+   * @returns {number}
+   */
+  cellNextState(row: number, col: number) {
+    //TODO test unitaire
+    const neighbours = this.neighboursGrid[row][col];
+    if (this.pattern[row][col] === 1 && neighbours === 2) return 1;
+    return neighbours === 3 ? 1 : 0;
+  }
+
+  /**
+   * Start the simulation
+   */
   run() {
     this.isRunning = true;
     setInterval(() => {
       this.pattern = this.nextState;
     }, 300);
   }
+  //#endregion Methods
 }
 </script>
