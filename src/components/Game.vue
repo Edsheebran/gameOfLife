@@ -4,17 +4,17 @@
     <div v-if="pattern[0].length === 0">
       <button @click="getRandomPattern">Get random Pattern</button>
       <button @click="generateBlanckGrid">Create my grid</button>
-      <div class="game-zone" >No pattern loaded</div>
+      <div class="game-zone">No pattern loaded</div>
     </div>
 
-    <div v-else  class="game-zone">
+    <div v-else class="game-zone">
       <Grid :pattern="pattern" @change-cell="changeCell" />
-      <button @click="pattern = nextState">Step</button>
-      <button @click="run">Run</button>
+      <button :disabled="isRunning" @click="pattern = nextState">Step</button>
+      <button :disabled="isRunning" @click="run">
+        {{ isRunning ? "Running..." : "Run" }}
+      </button>
     </div>
-    <div>
-
-    </div>
+    <div></div>
   </div>
 </template>
 
@@ -29,6 +29,26 @@
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
+
+button {
+  background-color: #35b5aa; /* Green */
+  border: none;
+  color: white;
+  padding: 9px 16px;
+  margin: 1%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+  transition-duration: 0.4s;
+}
+
+button:hover {
+  background-color: #ff6467;
+}
+button:disabled {
+  background-color: grey;
+}
 </style>
 
 <script lang="ts">
@@ -41,12 +61,9 @@ const availablePatternsUrl =
   components: { Grid },
 })
 export default class Game extends Vue {
-  changeCell({ row, col }: { row: number; col: number }) {
-    const newState = this.pattern[row][col] === 1 ? 0 : 1;
-    this.$set(this.pattern[row], col, newState);
-  }
   pattern: number[][] = [[]];
   availablePatterns: string[] = [];
+  isRunning = false;
 
   // COMPUTED VALUES
   get patternSize() {
@@ -115,7 +132,13 @@ export default class Game extends Vue {
     this.pattern = Array.from(Array(100), (_) => Array(100).fill(0));
   }
 
+  changeCell({ row, col }: { row: number; col: number }) {
+    const newState = this.pattern[row][col] === 1 ? 0 : 1;
+    this.$set(this.pattern[row], col, newState);
+  }
+
   run() {
+    this.isRunning = true;
     setInterval(() => {
       this.pattern = this.nextState;
     }, 300);
