@@ -175,7 +175,6 @@ export default class Game extends Vue {
    * @returns {number}
    */
   cellNextState(row: number, col: number) {
-    //TODO test unitaire
     const neighbours = this.neighboursGrid[row][col];
     if (this.pattern[row][col] === 1 && neighbours === 2) return 1;
     return neighbours === 3 ? 1 : 0;
