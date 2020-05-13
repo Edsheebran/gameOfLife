@@ -24,10 +24,10 @@
 }
 
 .cell.alive {
-  background-color: #ff6467; /* light red */
+  background-color: #35b5aa; /* light blue */
 }
 .cell {
-  background-color: #35b5aa; /* light blue */
+  background-color: white;
   max-height: 0.8vmin;
   max-width: 0.8vmin;
 }
