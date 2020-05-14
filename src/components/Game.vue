@@ -63,7 +63,7 @@ const availablePatternsUrl =
  * Controller with the logical part of the game
  */
 @Component({
-  components: { Grid },
+  components: { Grid }
 })
 export default class Game extends Vue {
   /**
