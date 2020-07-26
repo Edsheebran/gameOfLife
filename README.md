@@ -1,24 +1,24 @@
-# Recrutement project Flashbrand : Game of Life
-This project is a game of life simulator written with __Vue 2__. It is a recrutement project for the company __[flashbrand](https://flashbrand.me)__
+# Recrutement project : Game of Life
+This project is a game of life simulator written with __Vue 2__. It is a test project to learn about Vue.
 
 ## Project setup
 ```
-yarn install
+npm install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-yarn serve
+npm run serve
 ```
 
 ### Compiles and minifies for production
 ```
-yarn build
+npm run build
 ```
 
 ### Lints and fixes files
 ```
-yarn lint
+npm run lint
 ```
 
 ### Customize configuration
